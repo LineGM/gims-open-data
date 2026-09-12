@@ -6,12 +6,13 @@ import json
 import os
 import re
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 
 
-def atomic_json(path: Path, value: dict) -> None:
+def atomic_json(path: Path, value: dict[str, Any]) -> None:
     temporary = path.with_suffix(path.suffix + ".tmp")
     with temporary.open("w", encoding="utf-8", newline="\n") as stream:
         json.dump(value, stream, ensure_ascii=False, indent=2)
@@ -31,6 +32,30 @@ def mask_secrets(raw: bytes, secrets: set[str], *, is_html: bool) -> bytes:
                 r"token|csrf|secret|password|authorization|session|activation", name, re.I
             ):
                 values.add(str(tag.get("value", tag.get("content", ""))))
+    else:
+        # Added fields are tolerated, but unknown auth values must not leak to raw.
+        def collect(value: object, sensitive: bool = False) -> None:
+            if isinstance(value, dict):
+                for key, item in value.items():
+                    marked = sensitive or bool(
+                        re.search(
+                            r"csrf|token|secret|password|authorization|cookie|phpsessid|"
+                            r"activation|start_(?:id|uuid|code)",
+                            str(key),
+                            re.I,
+                        )
+                    )
+                    collect(item, marked)
+            elif isinstance(value, list):
+                for item in value:
+                    collect(item, sensitive)
+            elif sensitive and isinstance(value, str):
+                values.add(value)
+
+        try:
+            collect(json.loads(raw))
+        except (ValueError, UnicodeError):
+            pass  # Preserve malformed question bodies for diagnostics.
     for value in sorted(values, key=len, reverse=True):
         if value:
             variants = {
@@ -44,7 +69,7 @@ def mask_secrets(raw: bytes, secrets: set[str], *, is_html: bool) -> bytes:
     return raw
 
 
-def save_raw(path: Path, body: bytes, secrets: set[str]) -> dict:
+def save_raw(path: Path, body: bytes, secrets: set[str]) -> dict[str, Any]:
     saved = mask_secrets(body, secrets, is_html=path.suffix == ".html")
     with path.open("xb") as stream:
         stream.write(saved)

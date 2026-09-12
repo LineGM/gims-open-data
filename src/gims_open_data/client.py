@@ -2,6 +2,9 @@
 
 import math
 import time
+from collections.abc import Callable
+from types import TracebackType
+from typing import Any, Literal
 from urllib.parse import urljoin, urlsplit
 from uuid import UUID
 
@@ -16,31 +19,51 @@ ORIGIN = "https://digital.mchs.gov.ru"
 class ImportStopped(RuntimeError):
     """Safe message: never includes a request URL, headers, body or secret."""
 
+    def __init__(
+        self, message: str, kind: Literal["transient", "protocol", "validation"] = "protocol"
+    ):
+        super().__init__(message)
+        self.kind = kind
+
 
 class MarathonClient:
-    def __init__(self, delay: float = 1.0, *, transport=None, clock=None, sleep=None):
+    def __init__(
+        self,
+        delay: float = 1.0,
+        *,
+        transport: httpx.BaseTransport | None = None,
+        clock: Callable[[], float] | None = None,
+        sleep: Callable[[float], None] | None = None,
+    ) -> None:
         if not math.isfinite(delay) or delay < 1:
             raise ValueError("delay must be finite and at least 1.0 seconds")
         self.delay = delay
         self.clock = clock or time.monotonic
         self.sleep = sleep or time.sleep
-        self.last_finished = None
+        self.last_finished: float | None = None
         self.secrets: set[str] = set()
         self.http = httpx.Client(
             follow_redirects=False,
             timeout=httpx.Timeout(30, connect=15),
             transport=transport,
-            headers={"User-Agent": "gims-open-data/0.1.0", "Accept": "*/*"},
+            headers={"User-Agent": "gims-open-data/1.0.0", "Accept": "*/*"},
         )
 
-    def __enter__(self):
+    def __enter__(self) -> "MarathonClient":
         return self
 
-    def __exit__(self, *_):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self.http.close()
         self.secrets.clear()
 
-    def request(self, method: str, url: str, *, retry_get: bool = False, **kwargs):
+    def request(
+        self, method: str, url: str, *, retry_get: bool = False, **kwargs: Any
+    ) -> httpx.Response:
         if not self.same_origin(url):
             raise ImportStopped("Refused request outside the official HTTPS origin")
         for attempt in range(3 if method == "GET" and retry_get else 1):
@@ -57,12 +80,21 @@ class MarathonClient:
                     if method == "POST"
                     else "GET failed; import stopped."
                 )
-                raise ImportStopped(message) from None
+                raise ImportStopped(message, "transient") from None
             finally:
                 self.last_finished = self.clock()
-                self.secrets.update(cookie.value for cookie in self.http.cookies.jar)
+                self.secrets.update(
+                    cookie.value for cookie in self.http.cookies.jar if cookie.value
+                )
             if response.status_code >= 400:
-                raise ImportStopped(f"HTTP {response.status_code}; import stopped without retry")
+                kind: Literal["transient", "protocol"] = (
+                    "transient"
+                    if response.status_code == 429 or response.status_code >= 500
+                    else "protocol"
+                )
+                raise ImportStopped(
+                    f"HTTP {response.status_code}; import stopped without retry", kind
+                )
             return response
         raise AssertionError("unreachable")
 

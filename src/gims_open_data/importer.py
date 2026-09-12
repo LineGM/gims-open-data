@@ -5,6 +5,7 @@ import math
 import os
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from . import __version__
 from .client import ImportStopped, MarathonClient
@@ -20,7 +21,9 @@ def utcnow() -> datetime:
     return datetime.now(UTC)
 
 
-def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tuple[Path, dict]:
+def run_import(
+    client: MarathonClient, *, root: Path, limit: int | None, verbose: bool = False
+) -> tuple[Path, dict[str, Any]]:
     if limit is not None and limit < 1:
         raise ValueError("limit must be positive")
     started = utcnow()
@@ -28,7 +31,7 @@ def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tupl
     run = root / run_id
     (run / "raw").mkdir(parents=True, exist_ok=False)
     (run / "normalized").mkdir()
-    checkpoint = {
+    checkpoint: dict[str, Any] = {
         "run_id": run_id,
         "instance_url": None,
         "instance_uuid": None,
@@ -39,10 +42,10 @@ def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tupl
         "pending_answer_position": None,
         "resume_supported": False,
     }
-    manifest = {
+    manifest: dict[str, Any] = {
         "run_id": run_id,
         "importer_version": __version__,
-        "schema_version": "0.1",
+        "schema_version": "1.0",
         "publisher": "МЧС России",
         "simulator_url": SIMULATOR_URL,
         "started_at": started.isoformat(),
@@ -55,7 +58,7 @@ def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tupl
     }
     questions: list[Question] = []
 
-    def write_checkpoint():
+    def write_checkpoint() -> None:
         checkpoint["updated_at"] = utcnow().isoformat()
         atomic_json(run / "checkpoint.json", checkpoint)
 
@@ -83,10 +86,6 @@ def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tupl
             total = question.counters.questions_count
             if position == 1:
                 checkpoint["expected_total"] = total
-                if total != 1513:
-                    LOG.warning(
-                        "Reported total changed: expected baseline 1513, received %d", total
-                    )
             elif total != checkpoint["expected_total"]:
                 raise ImportStopped("Reported total changed within the marathon; raw saved")
             if question.multiple:
@@ -111,7 +110,8 @@ def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tupl
                 pending_answer_position=None,
             )
             write_checkpoint()
-            LOG.info("Saved %d/%d", position, total)
+            if verbose or position == 1 or position % 50 == 0 or position == total:
+                LOG.info("Questions: %d/%d", position, total)
             if position == total or (limit is not None and position >= limit):
                 break
             # Persist intent before sending: interruption must not hide an in-flight POST.
@@ -131,7 +131,7 @@ def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tupl
         summary = summarize(questions, checkpoint["expected_total"], complete=position == total)
         atomic_json(run / "summary.json", summary)
         if summary["validation_errors"]:
-            raise ImportStopped("Dataset validation failed; see summary.json")
+            raise ImportStopped("Dataset validation failed; see summary.json", "validation")
         status = "complete" if summary["complete"] else "limited"
         checkpoint["status"] = status
         write_checkpoint()
@@ -147,6 +147,8 @@ def run_import(client: MarathonClient, *, root: Path, limit: int | None) -> tupl
         write_checkpoint()
         manifest.update(status=checkpoint["status"], finished_at=utcnow().isoformat())
         atomic_json(run / "manifest.json", manifest)
+        if isinstance(exc, KeyboardInterrupt):
+            raise
         if isinstance(exc, ImportStopped):
             raise
         raise ImportStopped(

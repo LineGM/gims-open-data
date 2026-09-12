@@ -210,3 +210,15 @@ def test_empty_answer_never_submitted():
     ) as c:
         with pytest.raises(ImportStopped):
             c.answer(UUID(INSTANCE), [])
+
+
+def test_added_nested_auth_fields_masked_without_reserializing(tmp_path):
+    raw = (
+        b'{ "current_question": {}, "authorization": {"value": "private-value"}, '
+        b'"activation_code": "private-activation" }'
+    )
+    path = tmp_path / "0002.json"
+    save_raw(path, raw, set())
+    assert path.read_bytes() == raw.replace(b"private-value", b"REDACTED_SECRET").replace(
+        b"private-activation", b"REDACTED_SECRET"
+    )

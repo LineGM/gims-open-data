@@ -1,14 +1,14 @@
 from collections import Counter
 from datetime import datetime
-from typing import Literal, Self
-from urllib.parse import urlsplit
+from typing import Any, Final, Literal, Self
+from urllib.parse import unquote, urlsplit
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .canonical import fingerprint, normalize_text
+from .canonical import fingerprint, match_fingerprint, normalize_text, revision_fingerprint
 
-SIMULATOR_URL = "https://digital.mchs.gov.ru/gims/simulator"
+SIMULATOR_URL: Final = "https://digital.mchs.gov.ru/gims/simulator"
 
 
 class Model(BaseModel):
@@ -18,19 +18,36 @@ class Model(BaseModel):
 class Resource(Model):
     # Keep the original URL string, including port, escaping and query ordering.
     url: str
+    sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    content_type: str | None = None
+    bytes: int | None = Field(default=None, ge=0)
 
     @field_validator("url")
     @classmethod
     def valid_url(cls, value: str) -> str:
         parsed = urlsplit(value)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            raise ValueError("resource must be an absolute HTTP(S) URL")
+        path = unquote(parsed.path)
+        if (
+            parsed.scheme != "https"
+            or parsed.hostname != "digital.mchs.gov.ru"
+            or parsed.port != 85
+            or parsed.username is not None
+            or parsed.password is not None
+            or not path.startswith("/testing_bucket/")
+            or path == "/testing_bucket/"
+            or "\\" in value
+            or any(ord(c) < 32 for c in value)
+            or parsed.fragment
+            or any(part in {".", ".."} for part in path.split("/"))
+            or "%" in path
+        ):
+            raise ValueError("resource origin/path outside official media allowlist")
         return value
 
 
 class Source(Model):
     publisher: Literal["МЧС России"] = "МЧС России"
-    simulator_url: Literal[SIMULATOR_URL] = SIMULATOR_URL
+    simulator_url: Literal["https://digital.mchs.gov.ru/gims/simulator"] = SIMULATOR_URL
     retrieved_at: datetime
 
 
@@ -51,10 +68,14 @@ class Counters(Model):
     question_number: int = Field(gt=0)
     questions_passed: int = Field(ge=0)
     questions_remain: int = Field(ge=0)
-    questions_statuses: list | dict | None = None
+    questions_statuses: list[Any] | dict[str, Any] | None = None
 
 
 class Question(Model):
+    schema_version: Literal["1.0"] = "1.0"
+    stable_key: str = ""
+    match_fingerprint: str = ""
+    revision_fingerprint: str = ""
     official_id: UUID | None
     id_status: Literal["official", "unresolved_initial_html"]
     position: int = Field(gt=0)
@@ -107,10 +128,21 @@ class Question(Model):
         if self.content_fingerprint and self.content_fingerprint != expected:
             raise ValueError("content fingerprint mismatch")
         self.content_fingerprint = expected
+        match = match_fingerprint(self)
+        revision = revision_fingerprint(self)
+        key = f"official:{self.official_id}" if self.official_id else f"fallback:{match}"
+        for name, value in (
+            ("stable_key", key),
+            ("match_fingerprint", match),
+            ("revision_fingerprint", revision),
+        ):
+            if getattr(self, name) and getattr(self, name) != value:
+                raise ValueError(f"{name} mismatch")
+            setattr(self, name, value)
         return self
 
 
-def summarize(questions: list[Question], expected_total: int, *, complete: bool) -> dict:
+def summarize(questions: list[Question], expected_total: int, *, complete: bool) -> dict[str, Any]:
     ids = Counter(str(q.official_id) for q in questions if q.official_id)
     prints = Counter(q.content_fingerprint for q in questions)
     errors = []
@@ -123,6 +155,8 @@ def summarize(questions: list[Question], expected_total: int, *, complete: bool)
     duplicate_ids = {key: n for key, n in ids.items() if n > 1}
     if duplicate_ids:
         errors.append("duplicate official question UUIDs")
+    if len({q.stable_key for q in questions}) != len(questions):
+        errors.append("duplicate stable keys")
     return {
         "positions": len(questions),
         "reported_questions_count": expected_total,
