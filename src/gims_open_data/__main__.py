@@ -27,7 +27,10 @@ def main(argv: list[str] | None = None) -> int:
         "--pdf", type=Path, default=Path("data/reference/gims-attestation-question-bank.pdf")
     )
     ref_match = ref_commands.add_parser("crosswalk", help="match against current snapshot offline")
-    for ref in (ref_parse, ref_match):
+    ref_classify = ref_commands.add_parser(
+        "classify", help="classify live questions into PDF topics offline"
+    )
+    for ref in (ref_parse, ref_match, ref_classify):
         ref.add_argument("--data-root", type=Path, default=Path("data"))
         ref.add_argument("--parsed", type=Path, default=Path("data/reference/parsed"))
         ref.add_argument("--media", type=Path, default=Path("data/reference/media"))
@@ -58,6 +61,10 @@ def main(argv: list[str] | None = None) -> int:
                 from .reference_pdf import parse_pdf
 
                 result = parse_pdf(args.pdf, args.parsed, args.media, root=args.data_root)
+            elif args.reference_command == "classify":
+                from .reference_classification import classify
+
+                result = classify(args.data_root, args.parsed, args.media)
             else:
                 from .reference_match import crosswalk
 
