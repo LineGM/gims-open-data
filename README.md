@@ -204,6 +204,13 @@ Low-level importer сохранён для диагностики:
 
 ## Reference PDF и классификация
 
+Основной официальный classification/reference corpus теперь собирается отдельно
+из семи categorized landing pages МЧС: команды `mchs-reference inventory`,
+`parse`, `crosswalk`, `verify`, `all`. Live сохраняет authority текущего content.
+[Новый workflow](docs/mchs-categorized-reference.md) и
+[исследованный формат](docs/mchs-categorized-pdf-format.md).
+Большой старый PDF и команды `reference` остаются legacy/historical/fallback.
+
 Локальные команды `python -m gims_open_data reference parse` и
 `python -m gims_open_data reference crosswalk` создают отдельные reference/derived
 артефакты, сохраняя current snapshot неизменным. Live остаётся источником текущего

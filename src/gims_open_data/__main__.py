@@ -20,6 +20,21 @@ from .sync import sync
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Official GIMS periodic snapshot sync")
     commands = parser.add_subparsers(dest="command", required=True)
+    categorized = commands.add_parser(
+        "mchs-reference", help="official categorized reference corpus"
+    )
+    cat_commands = categorized.add_subparsers(dest="mchs_stage", required=True)
+    for stage in ("inventory", "parse", "crosswalk", "verify", "all"):
+        cat = cat_commands.add_parser(stage)
+        cat.add_argument("--data-root", type=Path, default=Path("data"))
+        cat.add_argument("--snapshot", help="immutable snapshot ID; default current")
+        cat.add_argument("--json-summary", action="store_true")
+        if stage in ("inventory", "all"):
+            cat.add_argument(
+                "--refresh",
+                action="store_true",
+                help="re-fetch the seven pages and discovered PDFs",
+            )
     reference = commands.add_parser("reference", help="offline PDF reference and crosswalk")
     ref_commands = reference.add_subparsers(dest="reference_command", required=True)
     ref_parse = ref_commands.add_parser("parse", help="parse local reference PDF")
@@ -56,7 +71,16 @@ def main(argv: list[str] | None = None) -> int:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     try:
-        if args.command == "reference":
+        if args.command == "mchs-reference":
+            from .mchs_reference import run
+
+            result = run(
+                args.mchs_stage,
+                args.data_root,
+                args.snapshot,
+                refresh=getattr(args, "refresh", False),
+            )
+        elif args.command == "reference":
             if args.reference_command == "parse":
                 from .reference_pdf import parse_pdf
 
