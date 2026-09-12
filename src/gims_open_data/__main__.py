@@ -20,6 +20,18 @@ from .sync import sync
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Official GIMS periodic snapshot sync")
     commands = parser.add_subparsers(dest="command", required=True)
+    reference = commands.add_parser("reference", help="offline PDF reference and crosswalk")
+    ref_commands = reference.add_subparsers(dest="reference_command", required=True)
+    ref_parse = ref_commands.add_parser("parse", help="parse local reference PDF")
+    ref_parse.add_argument(
+        "--pdf", type=Path, default=Path("data/reference/gims-attestation-question-bank.pdf")
+    )
+    ref_match = ref_commands.add_parser("crosswalk", help="match against current snapshot offline")
+    for ref in (ref_parse, ref_match):
+        ref.add_argument("--data-root", type=Path, default=Path("data"))
+        ref.add_argument("--parsed", type=Path, default=Path("data/reference/parsed"))
+        ref.add_argument("--media", type=Path, default=Path("data/reference/media"))
+        ref.add_argument("--json-summary", action="store_true")
     sync_parser = commands.add_parser("sync", help="download, verify, diff and promote full corpus")
     sync_parser.add_argument("--delay", type=float, default=1.0)
     sync_parser.add_argument("--media-delay", type=float, default=1.0)
@@ -41,7 +53,16 @@ def main(argv: list[str] | None = None) -> int:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     try:
-        if args.command == "sync":
+        if args.command == "reference":
+            if args.reference_command == "parse":
+                from .reference_pdf import parse_pdf
+
+                result = parse_pdf(args.pdf, args.parsed, args.media, root=args.data_root)
+            else:
+                from .reference_match import crosswalk
+
+                result = crosswalk(args.data_root, args.parsed, args.media)
+        elif args.command == "sync":
             if (
                 not math.isfinite(args.delay)
                 or args.delay < 1

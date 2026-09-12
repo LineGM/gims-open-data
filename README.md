@@ -201,3 +201,15 @@ Low-level importer сохранён для диагностики:
 заданы явно для будущих миграций.
 
 Результаты проверки v1.0: [docs/sync-v1-validation.md](docs/sync-v1-validation.md).
+
+## Reference PDF и классификация
+
+Локальные команды `python -m gims_open_data reference parse` и
+`python -m gims_open_data reference crosswalk` создают отдельные reference/derived
+артефакты, сохраняя current snapshot неизменным. Live остаётся источником текущего
+текста, ответов, медиа и UUID; PDF добавляет опубликованные коды и заголовки.
+Установка optional dependencies, команды и правила confidence:
+[docs/reference-crosswalk.md](docs/reference-crosswalk.md).
+Фактический формат: [docs/pdf-question-bank-format.md](docs/pdf-question-bank-format.md).
+Полный локальный прогон и 20 примеров для review:
+[docs/pdf-reference-investigation.md](docs/pdf-reference-investigation.md).
