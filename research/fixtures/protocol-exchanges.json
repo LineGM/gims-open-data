@@ -1,0 +1,133 @@
+{
+  "source": "https://digital.mchs.gov.ru/gims/simulator",
+  "observed_at": "2026-09-12T07:22:03Z",
+  "note": "Selected headers only. Session, activation and start values replaced. Redirect bodies were not captured.",
+  "cookie_metadata": {
+    "name": "PHPSESSID",
+    "path": "/",
+    "secure": true,
+    "httpOnly": true,
+    "sameSite": "Lax",
+    "session": true,
+    "value": "REDACTED_COOKIE"
+  },
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://digital.mchs.gov.ru/gims/simulator",
+        "headers": {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Cookie": "PHPSESSID=REDACTED_COOKIE"
+        },
+        "body": "gims_simulator_form%5Btype%5D=marathon&gims_simulator_form%5Bsend%5D=&gims_simulator_form%5B_token%5D=REDACTED_CSRF_TOKEN"
+      },
+      "response": {
+        "status": 302,
+        "headers": {
+          "Content-Type": "text/html; charset=UTF-8",
+          "Location": "https://digital.mchs.gov.ru/testing/activate/ACTIVATION_A"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "https://digital.mchs.gov.ru/testing/activate/ACTIVATION_A"
+      },
+      "response": {
+        "status": 302,
+        "headers": {
+          "Location": "/testing/test/TEST_TEMPLATE/start/START_A",
+          "Content-Type": "text/html; charset=utf-8"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "https://digital.mchs.gov.ru/testing/test/TEST_TEMPLATE/start/START_A"
+      },
+      "response": {
+        "status": 302,
+        "headers": {
+          "Location": "/testing/instance/INSTANCE_A",
+          "Content-Type": "text/html; charset=utf-8"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "https://digital.mchs.gov.ru/testing/instance/INSTANCE_A"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/html; charset=UTF-8",
+          "Cache-Control": "max-age=0, must-revalidate, private"
+        },
+        "body_excerpt_file": "marathon-initial.html"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://digital.mchs.gov.ru/testing/api/instance/INSTANCE_A",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "*/*",
+          "Cookie": "PHPSESSID=REDACTED_COOKIE",
+          "Origin": "https://digital.mchs.gov.ru",
+          "Referer": "https://digital.mchs.gov.ru/testing/instance/INSTANCE_A"
+        },
+        "body": {
+          "answer": "95902c7d-14ea-4950-a64c-044dece028a4"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "max-age=0, must-revalidate, private"
+        },
+        "body_file": "marathon-next-question.json"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://digital.mchs.gov.ru/testing/api/instance/INSTANCE_A",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "answer": "b8f9d9a9-8343-4592-a5c8-c8d6f2cda82c"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body_file": "marathon-third-question.json"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "https://digital.mchs.gov.ru:85/testing_bucket/654a4c1d7b794b6eb6b286059ad2b9db-60190c174269e1.00685403.jpeg"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "image/jpeg",
+          "Content-Length": "54788",
+          "ETag": "\"cf3203c22023a7bd41ea45e7b19bc5b9\"",
+          "Last-Modified": "Fri, 04 Apr 2025 11:24:42 GMT"
+        },
+        "body_saved": false
+      }
+    }
+  ]
+}

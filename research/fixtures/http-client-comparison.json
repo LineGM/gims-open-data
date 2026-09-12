@@ -1,0 +1,178 @@
+{
+  "client": "Python urllib.request, fresh CookieJar, no browser, default Python user agent",
+  "answer_submissions": 2,
+  "cookies": [
+    {
+      "name": "PHPSESSID",
+      "domain": "digital.mchs.gov.ru",
+      "path": "/",
+      "secure": true,
+      "discard": true,
+      "attributes": {
+        "HttpOnly": null,
+        "SameSite": "lax"
+      }
+    }
+  ],
+  "first_html_summary": {
+    "instance": "INSTANCE_B",
+    "mode": "marathon",
+    "answer_order": [
+      "a72c5c50-9338-4e46-887c-bd5001ce2f14",
+      "edbb70c8-ca03-4c22-ae02-2cd1db52bdb5",
+      "8d04bfc4-dd93-418f-ab01-426db1514f07",
+      "95902c7d-14ea-4950-a64c-044dece028a4"
+    ],
+    "valid_answers": "95902c7d-14ea-4950-a64c-044dece028a4"
+  },
+  "exchanges": [
+    {
+      "method": "GET",
+      "url": "https://digital.mchs.gov.ru/gims/simulator",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=UTF-8",
+        "cache-control": "max-age=0, must-revalidate, private"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "https://digital.mchs.gov.ru/gims/simulator",
+      "status": 302,
+      "headers": {
+        "content-type": "text/html; charset=UTF-8",
+        "cache-control": "max-age=0, must-revalidate, private",
+        "location": "https://digital.mchs.gov.ru/testing/activate/ACTIVATION_B"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://digital.mchs.gov.ru/testing/activate/ACTIVATION_B",
+      "status": 302,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "max-age=0, must-revalidate, private",
+        "location": "/testing/test/TEST_TEMPLATE/start/START_B"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://digital.mchs.gov.ru/testing/test/TEST_TEMPLATE/start/START_B",
+      "status": 302,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "max-age=0, must-revalidate, private",
+        "location": "/testing/instance/INSTANCE_B"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://digital.mchs.gov.ru/testing/instance/INSTANCE_B",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=UTF-8",
+        "cache-control": "max-age=0, must-revalidate, private"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "https://digital.mchs.gov.ru/testing/api/instance/INSTANCE_B",
+      "status": 200,
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "max-age=0, must-revalidate, private"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "https://digital.mchs.gov.ru/testing/api/instance/INSTANCE_B",
+      "status": 200,
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "max-age=0, must-revalidate, private"
+      }
+    }
+  ],
+  "responses": [
+    {
+      "id": "INSTANCE_B",
+      "current_question": {
+        "id": "26115699-40f6-4cdc-bcf2-4e411509b7d8",
+        "content": "На каком расстоянии рекомендуется начинать производить обгон на маломерном судне больших судов?",
+        "resources_path": [
+          "https://digital.mchs.gov.ru:85/testing_bucket/26-5f9ab7a6b914c3.13174584.png"
+        ],
+        "type": "single",
+        "is_additional": false
+      },
+      "current_answers": [
+        {
+          "id": "aeb747ff-6070-4f27-98c2-460f362edfc3",
+          "title": "Не менее длины корпуса маломерного судна",
+          "resources_path": []
+        },
+        {
+          "id": "fefc43e4-bf94-4abb-891b-a488b3b4ec32",
+          "title": "Не менее двух длин корпуса обгоняемого судна",
+          "resources_path": []
+        },
+        {
+          "id": "b17b9ea1-87d3-4aab-8f6a-e5d93cfe7d4e",
+          "title": "Не менее трех длин корпуса маломерного судна",
+          "resources_path": []
+        },
+        {
+          "id": "b8f9d9a9-8343-4592-a5c8-c8d6f2cda82c",
+          "title": "Не менее длины корпуса обгоняемого судна",
+          "resources_path": []
+        }
+      ],
+      "questions_count": 1513,
+      "question_number": 2,
+      "questions_statuses": [],
+      "valid_answer": "b8f9d9a9-8343-4592-a5c8-c8d6f2cda82c",
+      "questions_passed": 1,
+      "valid_answers": "b8f9d9a9-8343-4592-a5c8-c8d6f2cda82c"
+    },
+    {
+      "id": "INSTANCE_B",
+      "current_question": {
+        "id": "de566241-be55-40b1-888e-95c30932ef5e",
+        "content": "В каком из перечисленных случаев судно имеет состояние неустойчивого равновесия (нулевую остойчивость)?",
+        "resources_path": [
+          "https://digital.mchs.gov.ru:85/testing_bucket/31-5f97d2c0eacd77.75620938.png"
+        ],
+        "type": "single",
+        "is_additional": false
+      },
+      "current_answers": [
+        {
+          "id": "db8404ac-0f8f-4aed-964f-d88772b523de",
+          "title": "Если метацентр находится выше центра тяжести",
+          "resources_path": []
+        },
+        {
+          "id": "1d3f737b-776d-4754-b4ec-15a2129c5ee0",
+          "title": "Если метацентр находится ниже центра тяжести",
+          "resources_path": []
+        },
+        {
+          "id": "1e60fc46-4de9-42be-a389-485b5c6eef90",
+          "title": "Если сила тяжести по величине равна силе поддержания",
+          "resources_path": []
+        },
+        {
+          "id": "2c11db30-eadc-4ff5-825f-6bfb27a056a4",
+          "title": "Если метацентр совпадает с центром тяжести",
+          "resources_path": []
+        }
+      ],
+      "questions_count": 1513,
+      "question_number": 3,
+      "questions_statuses": [],
+      "valid_answer": "2c11db30-eadc-4ff5-825f-6bfb27a056a4",
+      "questions_passed": 2,
+      "valid_answers": "2c11db30-eadc-4ff5-825f-6bfb27a056a4"
+    }
+  ]
+}

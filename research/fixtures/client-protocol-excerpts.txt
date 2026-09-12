@@ -1,0 +1,267 @@
+Source: https://digital.mchs.gov.ru/testing/build/dev/assets_js_api-methods_js.js
+Observed: 2026-09-12 UTC. Selected public simulator logic only.
+
+[EXCERPT BOUNDARY]
+
+var createURLWithPrefix = function createURLWithPrefix(url) {
+  var prefix = "/testing";
+  return prefix !== "" ? "".concat(prefix).concat(url) : url;
+};
+var sendAnswer = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(requestURL, answers, quiestionID) {
+    var response, json, _response, _json;
+    return _regenerator().w(function (_context) {
+      while (1) switch (_context.n) {
+        case 0:
+          if (!quiestionID) {
+            _context.n = 6;
+            break;
+          }
+          _context.n = 1;
+          return fetch(createURLWithPrefix('/api/instance/' + requestURL), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              question: quiestionID
+            })
+          });
+        case 1:
+          response = _context.v;
+          if (!(response.status === 200)) {
+            _context.n = 3;
+            break;
+          }
+          _context.n = 2;
+          return response.json();
+        case 2:
+          json = _context.v;
+          return _context.a(2, json);
+        case 3:
+          if (!(response.status === 403)) {
+            _context.n = 4;
+            break;
+          }
+          location.href = '/activate';
+          _context.n = 5;
+          break;
+        case 4:
+          return _context.a(2, null);
+        case 5:
+          _context.n = 11;
+          break;
+        case 6:
+          _context.n = 7;
+          return fetch(createURLWithPrefix('/api/instance/' + requestURL), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: answers && answers.length ? JSON.stringify({
+              answer: answers
+            }) : JSON.stringify({
+              skip: true
+            })
+          });
+        case 7:
+          _response = _context.v;
+          if (!(_response.status === 200)) {
+            _context.n = 9;
+            break;
+          }
+          _context.n = 8;
+          return _response.json();
+        case 8:
+          _json = _context.v;
+          return _context.a(2, _json);
+        case 9:
+          if (!(_response.status === 403)) {
+            _context.n = 10;
+            break;
+          }
+          location.href = '/activate';
+          _context.n = 11;
+          break;
+        case 10:
+          return _context.a(2, null);
+        case 11:
+          return _context.a(2);
+      }
+    }, _callee);
+  }));
+  return function sendAnswer(_x, _x2, _x3) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+
+[EXCERPT BOUNDARY]
+
+Source: https://digital.mchs.gov.ru/testing/build/dev/step.js
+
+[EXCERPT BOUNDARY]
+
+var setAnswersDataForFetch = function setAnswersDataForFetch(answers) {
+  var answersID = [];
+  for (var index = 0; index < answers.length; index++) {
+    var element = answers[index];
+    if (element.checked) {
+      answersID.push(element.value);
+    }
+  }
+  return answersID.length > 1 ? answersID : answersID[0];
+};
+var setFormSelectorByMode = function setFormSelectorByMode(mode) {
+  if (mode === 'marathon') return '#step-form';
+  return "[data-type=\"".concat(mode, "\"]");
+};
+
+
+[EXCERPT BOUNDARY]
+
+  var addOrRemoveImageInQuestion = function addOrRemoveImageInQuestion(resources) {
+    if (resources.length) {
+      if ($questionImageContainer && $questionImageContainer.length) {
+        $questionImageContainer.find('img').attr({
+          src: resources[0]
+        });
+      } else {
+        $questionImageContainer = $(document.createElement('div')).addClass('question-image text-center mb-24').attr({
+          'data-name': 'question-image'
+        }).html("\n                    <img src=\"".concat(resources[0], "\" class=\"\" alt=\"\">\n                    "));
+        $(questionContainerSelector).append($questionImageContainer);
+      }
+    } else {
+      if ($questionImageContainer) {
+        $questionImageContainer.remove();
+        $questionImageContainer = null;
+      }
+    }
+  };
+  var setTextDataInMarathon = function setTextDataInMarathon(data) {
+    var $questionNumber = $('[data-name="question-number"]');
+    var $questionsPassed = $('[data-name="questions-passed"]');
+    var $questionsRemain = $('[data-name="questions-remain"]');
+    var resources = data.current_question.resources_path;
+    $questionNumber.text(data.question_number);
+    $questionsPassed.text(data.questions_passed);
+    $questionsRemain.text(data.questions_count - data.questions_passed);
+    $questionContent.text(data.current_question.content);
+    addOrRemoveImageInQuestion(resources);
+    $submitBtn.text(defaultSubmitBtnText);
+  };
+
+
+[EXCERPT BOUNDARY]
+
+  var addCheckboxes = function addCheckboxes(answers) {
+    var newAnswers = [];
+    for (var index = 0; index < answers.length; index++) {
+      var answer = answers[index];
+      var $answer = $(document.createElement('div'));
+      if (answer.resources_path.length) {
+        $answer.addClass('col-3').html("\n                        <label class=\"answers-image\" for=\"".concat(answer.id, "\">\n                          <input type=\"checkbox\" id=\"").concat(answer.id, "\" name=\"answer[]\"\n                            value=\"").concat(answer.id, "\" class=\"answers-input\">\n                          <span class=\"answers-picture\">\n                            <img src=\"").concat(answer.resources_path[0], "\"\n                            alt=\"\"/>\n                          </span>\n                          <span class=\"answers-overlay\"></span>\n                        </label>\n                "));
+      } else {
+        var col = answers.length >= 4 ? 6 : 12;
+        $answer.addClass("col-".concat(col)).html("\n                         <label class=\"answers-text\" for=\"".concat(answer.id, "\">\n                             <input type=\"checkbox\" id=\"").concat(answer.id, "\" name=\"answer[]\"\n                                    value=\"").concat(answer.id, "\" class=\"answers-input\"/>\n                             <span class=\"answers-label\">").concat(answer.title, "</span>\n                         </label>\n                    "));
+        $;
+      }
+      newAnswers.push($answer);
+    }
+    $answersContainer.append(newAnswers);
+  };
+  var addRadios = function addRadios(answers) {
+    var newAnswers = [];
+    for (var index = 0; index < answers.length; index++) {
+      var answer = answers[index];
+      var $answer = $(document.createElement('div'));
+      if (answer.resources_path.length) {
+        $answer.addClass('col-3').html("\n                       <label class=\"answers-image\" for=\"".concat(answer.id, "\">\n                         <input type=\"radio\" id=\"").concat(answer.id, "\" name=\"answer\"\n                           value=\"").concat(answer.id, "\" class=\"answers-input\">\n                         <span class =\"answers-picture\">\n                         <img src=\"").concat(answer.resources_path[0], "\"\n                         alt=\"\"/>\n                         </span>\n                         <span class =\"answers-overlay\"></span>\n                       </label>\n                "));
+      } else {
+        var col = answers.length >= 4 ? 6 : 12;
+        $answer.addClass("col-".concat(col)).html("\n                    <label class=\"answers-text\" for=\"".concat(answer.id, "\">\n                        <input type=\"radio\" id=\"").concat(answer.id, "\" name=\"answer\"\n                           value=\"").concat(answer.id, "\" class=\"answers-input\"/>\n                        <span class=\"answers-label\">").concat(answer.title, "</span>\n                    </label>                \n                    "));
+      }
+      newAnswers.push($answer);
+    }
+    $answersContainer.append(newAnswers);
+  };
+  var setNewAnswers = function setNewAnswers(answers, currentValidAnswers) {
+    validAnswers = currentValidAnswers.split(',');
+    isMultiple = validAnswers.length > 1;
+    $answersContainer.empty();
+    isMultiple ? addCheckboxes((0,_utils__WEBPACK_IMPORTED_MODULE_16__.shuffle)(answers)) : addRadios((0,_utils__WEBPACK_IMPORTED_MODULE_16__.shuffle)(answers));
+    currentAnswers = $('#step-form').find('input');
+  };
+
+
+[EXCERPT BOUNDARY]
+
+  var onSubmitHandler = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(event) {
+      var answersID, nextQuiestionData, index, $element, answerID, isValid, _nextQuiestionData;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.n) {
+          case 0:
+            event.preventDefault();
+            answersID = setAnswersDataForFetch(currentAnswers);
+            if (!(mode === 'marathon')) {
+              _context.n = 4;
+              break;
+            }
+            if (!submitAnswer) {
+              _context.n = 2;
+              break;
+            }
+            $submitBtn.attr({
+              disabled: true
+            });
+            _context.n = 1;
+            return (0,_api_methods__WEBPACK_IMPORTED_MODULE_15__.sendAnswer)(requestURL, answersID);
+          case 1:
+            nextQuiestionData = _context.v;
+            if (nextQuiestionData.current_question) {
+              setTextDataInMarathon(nextQuiestionData);
+              setNewAnswers(nextQuiestionData.current_answers, nextQuiestionData.valid_answers);
+              submitAnswer = false;
+            } else {
+              window.location.reload();
+            }
+            _context.n = 3;
+            break;
+          case 2:
+            $submitBtn.text(nextQuestionBtnText);
+            for (index = 0; index < currentAnswers.length; index++) {
+              $element = currentAnswers[index];
+              answerID = $element.value;
+              isValid = checkAnswer(answerID, validAnswers);
+              setClassesForWrongOrRight(isValid, $($element).parent());
+            }
+            submitAnswer = true;
+          case 3:
+            _context.n = 6;
+            break;
+          case 4:
+            $submitBtn.attr({
+              disabled: true
+            });
+            _context.n = 5;
+            return (0,_api_methods__WEBPACK_IMPORTED_MODULE_15__.sendAnswer)(requestURL, answersID);
+          case 5:
+            _nextQuiestionData = _context.v;
+            if (_nextQuiestionData.current_question) {
+              setDataInSimulator(_nextQuiestionData);
+              setNewAnswersInSimulator(_nextQuiestionData);
+            } else {
+              window.location.reload();
+            }
+          case 6:
+            return _context.a(2);
+        }
+      }, _callee);
+    }));
+    return function onSubmitHandler(_x) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+

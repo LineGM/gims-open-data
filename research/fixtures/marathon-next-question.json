@@ -1,0 +1,40 @@
+{
+  "id": "INSTANCE_A",
+  "current_question": {
+    "id": "26115699-40f6-4cdc-bcf2-4e411509b7d8",
+    "content": "На каком расстоянии рекомендуется начинать производить обгон на маломерном судне больших судов?",
+    "resources_path": [
+      "https://digital.mchs.gov.ru:85/testing_bucket/26-5f9ab7a6b914c3.13174584.png"
+    ],
+    "type": "single",
+    "is_additional": false
+  },
+  "current_answers": [
+    {
+      "id": "aeb747ff-6070-4f27-98c2-460f362edfc3",
+      "title": "Не менее длины корпуса маломерного судна",
+      "resources_path": []
+    },
+    {
+      "id": "fefc43e4-bf94-4abb-891b-a488b3b4ec32",
+      "title": "Не менее двух длин корпуса обгоняемого судна",
+      "resources_path": []
+    },
+    {
+      "id": "b17b9ea1-87d3-4aab-8f6a-e5d93cfe7d4e",
+      "title": "Не менее трех длин корпуса маломерного судна",
+      "resources_path": []
+    },
+    {
+      "id": "b8f9d9a9-8343-4592-a5c8-c8d6f2cda82c",
+      "title": "Не менее длины корпуса обгоняемого судна",
+      "resources_path": []
+    }
+  ],
+  "questions_count": 1513,
+  "question_number": 2,
+  "questions_statuses": [],
+  "valid_answer": "b8f9d9a9-8343-4592-a5c8-c8d6f2cda82c",
+  "questions_passed": 1,
+  "valid_answers": "b8f9d9a9-8343-4592-a5c8-c8d6f2cda82c"
+}

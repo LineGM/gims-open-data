@@ -1,0 +1,16 @@
+<form name="gims_simulator_form" method="post">
+<div class="form-field">
+<fieldset class="form-group"><legend class="col-form-label required">Тип тестирования</legend><div id="gims_simulator_form_type"><div class="form-check">        <input type="radio" id="gims_simulator_form_type_0" name="gims_simulator_form[type]" required="required" class="form-check-input" value="fixed" checked="checked">
+<label class="form-check-label required" for="gims_simulator_form_type_0">Экзамен</label></div><div class="form-check">        <input type="radio" id="gims_simulator_form_type_1" name="gims_simulator_form[type]" required="required" class="form-check-input" value="marathon">
+<label class="form-check-label required" for="gims_simulator_form_type_1">Марафон</label></div></div></fieldset>
+</div>
+<div class="form-field">
+<div class="form-group"><label class="required" for="gims_simulator_form_shipType">Тип судна</label><select id="gims_simulator_form_shipType" name="gims_simulator_form[shipType][]" required="required" class="form-control select2-hidden-accessible" multiple="" data-select2-id="select2-data-gims_simulator_form_shipType" tabindex="-1" aria-hidden="true"><option value="m">Маломерное моторное судно</option><option value="ps">Маломерное парусное судно</option><option value="pm">Маломерное парусно-моторное судно</option><option value="g">Гидроцикл</option><option value="a">Судно на воздушной подушке</option><option value="o">Маломерное судно особой конструкции</option></select></div>
+</div>
+<div class="form-field form-field--last">
+<div class="form-group"><label class="required" for="gims_simulator_form_sailArea">Район плавания</label><select id="gims_simulator_form_sailArea" name="gims_simulator_form[sailArea][]" required="required" class="form-control select2-hidden-accessible" multiple="" data-select2-id="select2-data-gims_simulator_form_sailArea" tabindex="-1" aria-hidden="true"><option value="vp">Внутренние воды</option><option value="vvp">Внутренние водные пути Российской Федерации</option><option value="mp">Внутренние морские воды и территориальном море Российской Федерации</option></select></div> 
+</div>
+<div class="flex justify-center">
+<div class="form-group"><button type="submit" id="gims_simulator_form_send" name="gims_simulator_form[send]" class="btn-primary btn">Начать тестирование</button></div>
+</div>
+<input type="hidden" id="gims_simulator_form__token" name="gims_simulator_form[_token]" value="REDACTED_CSRF_TOKEN"></form>
